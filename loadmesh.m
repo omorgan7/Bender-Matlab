@@ -1,5 +1,6 @@
 function [vertices,vertex_indices] = loadmesh
 fileID = fopen('/Users/Owen/Dropbox/bender.obj');
+%fileID = fopen('/Users/Owen/Downloads/man.obj');
 vertices = zeros(1,3);
 vertex_indices = zeros(1,3);
 
