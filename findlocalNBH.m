@@ -1,51 +1,58 @@
-function [vi, vj, vl, vr] = findlocalNBH(vertices, vertex_indices, POI)
-%FINDLOCALNBH Summary of this function goes here
-%   Detailed explanation goes here
-nbh_i = mod(find(vertex_indices==POI),length(vertex_indices));
-nbh_h = zeros(length(nbh_i),3);
-nbh = zeros(4,2);
+function [N_B_H,nbh_i] = findlocalNBH(vertices, vertex_indices, vi, vj)
+%[NBH , NBH_indices] = findlocalNBH(vertices, vertex_indices, POI)
+%returns a cell array containing the neighbour hood of the point of
+%interest (POI), as well as the indices of all the neighbours in the
+%neighbourhood.
+nbh_1 = mod(find(vertex_indices==vi),length(vertex_indices));
+nbh_2 = mod(find(vertex_indices==vj),length(vertex_indices));
 
-for i = 1:length(nbh_i)
-    nbh_h(i,:) = vertex_indices(nbh_i(i),:);
-end
-nbh_u = unique(nbh_h);
-nbh_c = [nbh_u,histc(nbh_h(:),nbh_u)];
 count = 1;
-for i = 1:length(nbh_u)
-    if (nbh_c(i,2) ~=1)
-        nbh(count,:) = vertices(nbh_u(i,1),:);
+
+if(length(nbh_2)>length(nbh_1))
+    iterator = nbh_2;
+    smaller = nbh_1;
+else
+    iterator = nbh_1;
+    smaller = nbh_2;
+end
+
+for i = 1:length(smaller)
+    if(nnz(smaller(i) == iterator))
+        foundIndices(count) = iterator(smaller(i) == iterator);
         count = count+1;
-        if(count == 5)
-            break;
-        end
     end
 end
-desiredIndexFlag = 0;
-for i = 1:4
-   if(nbh(i,:) == vertices(handleIndices(handleIndex),:))
-      desiredIndexFlag = i;
-      break;
-   end
+foundIndices(foundIndices == 0) = length(vertex_indices);
+if(length(foundIndices) == 1)
+    N_B_H = cell(3,1);
+    N_B_H{1} = vertices(vi,:);
+    N_B_H{2} = vertices(vj,:);
+    for i = 1:3
+       if(vertex_indices(foundIndices,i) ~= vi && vertex_indices(foundIndices,i) ~= vj)
+          N_B_H{3} = vertices(vertex_indices(foundIndices,i),:);
+          nbh_i(1) = vi;
+          nbh_i(2) = vj;
+          nbh_i(3) = vertex_indices(foundIndices,i);
+          break;
+       end
+    end
+    return;
 end
 
-if(desiredIndexFlag ==0)
-    nbh(i,:) = vertices(POI,:);
-end
-
-[~,vl_i] = min(nbh(:,1));
-[~,vr_i] = max(nbh(:,1));
-
-vl = nbh(vl_i,:);
-vr = nbh(vr_i,:);
-
-for i = 1:4
-   if(i == vl_i || i == vr_i || i == desiredIndexFlag)
-       continue;
-   end
-   vj = nbh(i,:);
-end
-vi = vertices(POI,:);
-
+index_set = [vertex_indices(foundIndices(1),:);vertex_indices(foundIndices(2),:)];
+nbh_i = unique(index_set);
+mask_1 = nbh_i == vi;
+mask_2 = nbh_i == vj;
+vlr = nbh_i(~(mask_1+mask_2));
+N_B_H = cell(4,1);
+N_B_H{1} = vertices(vi,:);
+N_B_H{2} = vertices(vj,:);
+N_B_H{4} = vertices(vlr(1),:);
+N_B_H{3} = vertices(vlr(2),:);
+nbh_i(1) = vi;
+nbh_i(2) = vj;
+nbh_i(3) = vlr(2);
+nbh_i(4) = vlr(1);
 
 
 end

@@ -1,3 +1,4 @@
+function simplemesh
 [v,vi] = loadmesh;
 close all
 figure(1)
@@ -90,4 +91,5 @@ while(1)
     y(handleIndex) = newMove(2);
     plot(x,y,'r.','MarkerSize',20);
     newMove = ginput(1);
+end
 end
